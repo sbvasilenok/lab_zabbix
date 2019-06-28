@@ -1,1 +1,1 @@
-# lab_zabbix
+# zabbix_lab
