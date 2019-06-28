@@ -23,7 +23,7 @@ if ! rpm -q zabbix-server-mysql ; then
     zcat /usr/share/doc/zabbix-server-mysql-*/create.sql.gz | mysql -uzabbix -pmdbpasswd zabbix
 
     sed -i 's/# DBHost/DBHost/' /etc/zabbix/zabbix_server.conf
-    sed -i 's/# DBPassword/DBPassword=mdbpasswd/' /etc/zabbix/zabbix_server.conf
+    sed -i 's/# DBPassword=/DBPassword=mdbpasswd/' /etc/zabbix/zabbix_server.conf
 
     sed -i 's-# php_value date.timezone Europe/Riga-php_value date.timezone Europe/Minsk-' /etc/httpd/conf.d/zabbix.conf
 
