@@ -1,0 +1,51 @@
+Vagrant.configure("2") do |config|
+
+  zbx_srv_addr = "192.168.99.10"
+  ngtc_srv_addr = "192.168.99.22"
+
+  config.vm.define "zbx-srv" do |node|
+
+    node.vm.box = "sbeliakou/centos"
+
+    node.vm.provider "virtualbox" do |vbox|
+      vbox.gui = false
+      vbox.memory = "2048"
+      vbox.name = "zbx-srv"
+    end
+
+    node.vm.hostname = "zbx-srv"
+    node.vm.network "private_network", ip: zbx_srv_addr
+
+    node.vm.provision "shell", path: "./provision/zxsrv_provision.sh"
+    node.vm.provision "shell", path: "./provision/zxagt_provision.sh"
+
+  end
+
+  config.vm.define "ngtc-srv2" do |node|    
+  
+    node.vm.box = "sbeliakou/centos"
+
+    node.vm.provider "virtualbox" do |vbox|
+      vbox.gui = false
+      vbox.memory = "2048"
+      vbox.name = "ngtc-srv2"
+    end
+
+    node.vm.hostname = "ngtc-srv2"
+    node.vm.network "private_network", ip: ngtc_srv_addr
+
+    node.vm.provision "shell", path: "./provision/ngtc_provision.sh"
+    node.vm.provision "shell", path: "./provision/zxagt_provision.sh"
+    
+    node.vm.provision :shell, :inline => "yum install -y python-pip"
+    node.vm.provision :shell, :inline => "pip install requests"
+
+    # ARGS: zbx_reghost.py [zabbix_server] [zabbix_username] [zabbix_password] [new_template_name]
+    node.vm.provision :shell, :inline => "cp -f /vagrant/scripts/zbx_reghost.py /home/vagrant"
+    node.vm.provision :shell, :inline => "echo #{zbx_srv_addr}"
+    node.vm.provision :shell, :inline => "python zbx_reghost.py #{zbx_srv_addr} Admin zabbix Custom"
+    node.vm.provision :shell, :inline => "rm -f /home/vagrant/zbx_reghost.py"
+
+  end 
+
+end   
